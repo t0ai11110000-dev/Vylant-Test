@@ -138,12 +138,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLaunch, onLogin, onSignUp, 
   {/* Navigation */}
   <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6">
   <div className="flex items-center gap-3 cursor-pointer" onClick={() => document.getElementById('top')?.scrollIntoView({ behavior: 'smooth' })}>
-   <img 
-   src="https://i.imgur.com/H3OS5zA.png" 
-   alt="Vylant Logo" 
-   className="w-10 h-10 object-contain"
-   referrerPolicy="no-referrer"
-   />
+    <img 
+    src="/vylant_logo.png" 
+    alt="Vylant Logo" 
+    className="w-10 h-10 object-contain"
+    referrerPolicy="no-referrer"
+    />
   </div>
   
   <div className="flex items-center gap-4">
@@ -190,7 +190,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLaunch, onLogin, onSignUp, 
    <div className="flex items-center gap-0 mb-8">
     <span className="text-2xl md:text-3xl font-medium text-white/40">Powered by</span>
     <img 
-    src="https://i.imgur.com/obW6gta.png" 
+    src="/toai_logo.png" 
     alt="T0AI Logo" 
     className="h-8 md:h-10 w-auto object-contain ml-[-2px]"
     referrerPolicy="no-referrer"
