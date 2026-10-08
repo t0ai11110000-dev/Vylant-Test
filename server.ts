@@ -2504,7 +2504,7 @@ IconFile=${ICON_URL}
   app.post("/api/login", validateBody({
     username: { required: true, type: "string", minLength: 3, maxLength: 32 },
     password: { required: true, type: "string", minLength: 6, maxLength: 128 }
-  }), async (req, res) => {
+  }), async (req: CustomRequest, res) => {
     const { username, password } = req.validatedBody;
     const trimmedUsername = username.trim();
     const trimmedPassword = password.trim();
