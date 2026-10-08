@@ -430,10 +430,10 @@ const apiFetch = async (url: string, options: RequestInit = {}) => {
 };
 
 const DEFAULT_AVATARS = [
-  'https://i.imgur.com/H3OS5zA.png',
-  'https://i.imgur.com/rU6pl6B.png',
-  'https://i.imgur.com/zp6R930.png',
-  'https://i.imgur.com/8a46Xw0.png'
+  '/vylant_icon.png',
+  '/favicon-192x192.png',
+  '/favicon-512x512.png',
+  '/apple-touch-icon.png'
 ];
 
 export const getRandomAvatar = (seed: string) => {
