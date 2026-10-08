@@ -3876,24 +3876,29 @@ IconFile=${ICON_URL}
     res.json(result);
   });
 
-  app.post("/api/messages", authenticateToken, (req: any, res: any) => {
+  app.post("/api/messages", authenticateToken, validateBody({
+    text: { required: false, type: "string", maxLength: 50000 },
+    imageUrl: { required: false, type: "string" },
+    audioUrl: { required: false, type: "string" },
+    videoUrl: { required: false, type: "string" },
+    fileUrl: { required: false, type: "string" },
+    type: { required: false, type: "string", whitelist: ["text", "image", "audio", "video", "file", "dm"] },
+    isVanish: { required: false, type: "boolean" },
+    replyTo: { required: false, type: "string" },
+    isStarred: { required: false, type: "boolean" },
+    isForwarded: { required: false, type: "boolean" }
+  }), (req: CustomRequest, res: any) => {
     const { message, receiver } = req.body;
     const sender = req.user.username;
-    
+
     if (message && message.sender !== sender) {
       return res.status(403).json({ error: "Unauthorized to send message as another user" });
     }
 
     if (message && receiver) {
-      // Check for bidirectional blocks (case-insensitive)
-      const senderBlocks = (globalBlocks[sender] || []).map(b => b.toLowerCase());
-      const receiverBlocks = (globalBlocks[receiver] || []).map(b => b.toLowerCase());
-      
-      if (senderBlocks.includes(receiver.toLowerCase())) {
-        return res.status(403).json({ error: "You have blocked this user" });
-      }
-      if (receiverBlocks.includes(sender.toLowerCase())) {
-        return res.status(403).json({ error: "This user has blocked you" });
+      // Validate receiver is a non-empty string
+      if (typeof receiver !== "string" || receiver.trim() === "") {
+        return res.status(400).json({ error: "Receiver is required" });
       }
 
       const senderObj = globalUsers.get(sender) || globalAccounts[sender];
@@ -3971,12 +3976,17 @@ IconFile=${ICON_URL}
     }
   });
 
-  app.post("/api/messages/edit", authenticateToken, (req: any, res: any) => {
-    const { messageId, newText, receiver } = req.body;
+  app.post("/api/messages/edit", authenticateToken, validateBody({
+    messageId: { required: true, type: "string" },
+    newText: { required: true, type: "string", minLength: 1, maxLength: 50000 }
+  }), (req: CustomRequest, res: any) => {
+    const { messageId, newText } = req.validatedBody;
+    const sender = req.user.username;
+
     const index = globalMessages.findIndex(m => m.id === messageId);
-    
+
     if (index !== -1) {
-      if (globalMessages[index].sender !== req.user.username) {
+      if (globalMessages[index].sender !== sender) {
         return res.status(403).json({ error: "Unauthorized to edit this message" });
       }
       globalMessages[index] = {
@@ -3986,12 +3996,12 @@ IconFile=${ICON_URL}
         editedAt: Date.now()
       };
       saveMessages();
-      
+
       const message = globalMessages[index];
       // Notify both sender and receiver rooms
       io.to(`user:${message.sender}`).emit("dm-message-edited", { message, otherPerson: message.receiver });
       io.to(`user:${message.receiver}`).emit("dm-message-edited", { message, otherPerson: message.sender });
-      
+
       return res.json({ success: true });
     } else {
       // Check in group chats
@@ -4001,7 +4011,7 @@ IconFile=${ICON_URL}
          if (mIndex !== -1) {
             foundGroup = groupId;
             const msg = messages[mIndex];
-            if (msg.sender !== req.user.username) {
+            if (msg.sender !== sender) {
                return res.status(403).json({ error: "Unauthorized to edit this message" });
             }
             messages[mIndex] = { ...msg, text: newText, isEdited: true, editedAt: Date.now() };
@@ -4021,8 +4031,12 @@ IconFile=${ICON_URL}
     }
   });
 
-  app.post("/api/messages/star", authenticateToken, (req: any, res: any) => {
-    const { messageId, receiver, serverId, channelId } = req.body;
+  app.post("/api/messages/star", authenticateToken, validateBody({
+    messageId: { required: true, type: "string" },
+    serverId: { required: false, type: "string" },
+    channelId: { required: false, type: "string" }
+  }), (req: CustomRequest, res: any) => {
+    const { messageId, serverId, channelId } = req.validatedBody;
     const username = req.user.username;
     
     // 1. Check server messages
