@@ -3089,9 +3089,21 @@ IconFile=${ICON_URL}
     });
   });
 
-  // Create new bot
-  app.post("/api/bots", authenticateToken, (req: any, res: any) => {
-    const username = req.user?.username || req.headers['x-username'] || 'User';
+  // Create a new bot
+  app.post("/api/bots", authenticateToken, validateBody({
+    name: { required: true, type: "string", minLength: 1, maxLength: 32 },
+    avatar: { required: false, type: "string" },
+    banner: { required: false, type: "string" },
+    about: { required: false, type: "string", maxLength: 2000 },
+    customStatus: { required: false, type: "string", maxLength: 100 },
+    prefix: { required: false, type: "string", minLength: 1, maxLength: 4 },
+    isPublic: { required: false, type: "boolean" },
+    isAiPowered: { required: false, type: "boolean" },
+    commands: { required: false, type: "array" },
+    autoResponses: { required: false, type: "array" },
+    welcomeMessage: { required: false, type: "string", maxLength: 2000 }
+  }), (req: CustomRequest, res: any) => {
+    const { username } = req.user || {};
     const {
       name,
       avatar,
@@ -3105,7 +3117,7 @@ IconFile=${ICON_URL}
       commands,
       autoResponses,
       welcomeMessage
-    } = req.body;
+    } = req.validatedBody || req.body;
 
     const trimmedName = (name || '').trim();
     if (!trimmedName) {
@@ -3159,9 +3171,24 @@ IconFile=${ICON_URL}
   });
 
   // Update existing bot
-  app.put("/api/bots/:id", authenticateToken, (req: any, res: any) => {
-    const botId = req.params.id;
-    const username = req.user?.username || req.headers['x-username'] || 'User';
+  app.put("/api/bots/:id", authenticateToken, validateParams({
+    id: { required: true, type: "string" }
+  }), validateBody({
+    name: { required: false, type: "string", minLength: 1, maxLength: 32 },
+    avatar: { required: false, type: "string" },
+    banner: { required: false, type: "string" },
+    about: { required: false, type: "string", maxLength: 2000 },
+    customStatus: { required: false, type: "string", maxLength: 100 },
+    prefix: { required: false, type: "string", minLength: 1, maxLength: 4 },
+    isPublic: { required: false, type: "boolean" },
+    isAiPowered: { required: false, type: "boolean" },
+    systemPrompt: { required: false, type: "string", maxLength: 10000 },
+    commands: { required: false, type: "array" },
+    autoResponses: { required: false, type: "array" },
+    welcomeMessage: { required: false, type: "string", maxLength: 2000 }
+  }), (req: CustomRequest, res: any) => {
+    const { botId } = req.validatedParams;
+    const { username } = req.user || {};
     const botIndex = globalBots.findIndex(b => b.id === botId);
 
     if (botIndex === -1) {
@@ -3186,7 +3213,7 @@ IconFile=${ICON_URL}
       commands,
       autoResponses,
       welcomeMessage
-    } = req.body;
+    } = req.validatedBody || req.body;
 
     globalBots[botIndex] = {
       ...bot,
