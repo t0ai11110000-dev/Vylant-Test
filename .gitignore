@@ -1,0 +1,19 @@
+node_modules/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Database files
+*.sqlite
+*.db
+vylant.db
+
+# Build output
+dist/
+*.js.map
+
+# Uploaded media and attachments
+uploads/
+!uploads/.gitkeep 2>/dev/null || true

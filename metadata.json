@@ -1,0 +1,6 @@
+{
+  "name": "Vylant",
+  "description": "A futuristic dark-themed social communication and AI assistant platform with glassmorphism and glowing accents.",
+  "requestFramePermissions": ["microphone", "camera", "display-capture", "fullscreen"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
